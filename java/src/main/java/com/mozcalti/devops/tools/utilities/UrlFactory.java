@@ -15,7 +15,7 @@ public class UrlFactory {
     public static final String ANALYSES_LIST_TEMPLATE = "%s/api/project_analyses/search";
     public static final String QUALITY_GATES_TEMPLATE = "%s/api/qualitygates/project_status";
 
-    public static URI analysesUrl(String host, String token, String projectKey, String since) {
+    public static URI analysesUrl(String host, String projectKey, String since) {
 
         String sinceFixed = since.replaceAll(":(\\d{2})$", "$1");
         String url = String.format(ANALYSES_LIST_TEMPLATE, host);
