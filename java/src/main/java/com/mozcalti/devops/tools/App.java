@@ -4,9 +4,14 @@ import com.mozcalti.devops.tools.sonar.model.SonarAnalysesResponse;
 import com.mozcalti.devops.tools.sonar.model.SonarQualityGateResponse;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,16 +62,28 @@ public class App {
 
         HttpEntity<Void> request = new HttpEntity<>(null, headers);
 
+        System.out.println(analysesUrl(host, token, projectKey, sinceTime));
+
 
         do {
-            analysesList = restTemplate.exchange(analysesUrl(host, token, projectKey, sinceTime), HttpMethod.GET, request, SonarAnalysesResponse.class);
+            try {
+                analysesList = restTemplate.exchange(analysesUrl(host, token, projectKey, sinceTime), HttpMethod.GET, request, SonarAnalysesResponse.class);
 
-            if (retries > 0 && analysesList.getBody().getAnalyses().size() == 0) {
-                retries--;
-                Thread.sleep(sleepTime);
-            } else {
-                break;
+                if (retries > 0 && analysesList.getBody().getAnalyses().size() == 0) {
+                    retries--;
+                    Thread.sleep(sleepTime);
+                } else {
+                    break;
+                }
+
+            } catch (HttpClientErrorException e) {
+                System.err.println(e.getStatusCode());
+                System.err.println(e.getStatusText());
+                System.err.println(e.getCause());
+                System.err.println(e.getMessage());
+                System.exit(3);
             }
+
         } while (true);
 
         if (retries == 0) {
