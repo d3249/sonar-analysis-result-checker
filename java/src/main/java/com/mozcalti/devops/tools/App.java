@@ -62,12 +62,9 @@ public class App {
 
         HttpEntity<Void> request = new HttpEntity<>(null, headers);
 
-        System.out.println(analysesUrl(host, token, projectKey, sinceTime));
-
-
         do {
             try {
-                analysesList = restTemplate.exchange(analysesUrl(host, token, projectKey, sinceTime), HttpMethod.GET, request, SonarAnalysesResponse.class);
+                analysesList = restTemplate.exchange(analysesUrl(host, projectKey, sinceTime), HttpMethod.GET, request, SonarAnalysesResponse.class);
 
                 if (retries > 0 && analysesList.getBody().getAnalyses().size() == 0) {
                     retries--;
